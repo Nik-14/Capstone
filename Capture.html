@@ -1,0 +1,225 @@
+<!doctype html>
+
+<head>
+    <style>
+    /* CSS comes here */
+    .wrapper{
+    background: url(bgtryon.jpeg) no-repeat;
+    background-size: contain, cover;
+    height: 100vh;
+    }
+    
+    #video {
+        border: 1px solid black;
+        margin: auto;
+        width: 320px;
+        height: 240px;
+    }
+
+    #photo {
+        border: 1px solid black;
+        width: 320px;
+        height: 240px;
+    }
+
+    #canvas {
+        display: none;
+    }
+
+    .camera {
+        width: 340px;
+        display: inline-block;
+    }
+
+    .output {
+        width: 340px;
+        display: inline-block;
+    }
+
+    #backbutton{
+        display: block;
+        position: absolute;
+        top: 400px;
+        margin-left: 440px;
+        margin-right: 1000px;
+        height: 50px;
+        width: 150px;
+        font-size: 20px;
+        font-weight: bold;
+        color: white;
+        background: #c784ee;
+        border: 1px solid white;
+        outline: none;
+        cursor: pointer;
+        border-radius: 25px;
+        bottom: 36px;
+        padding: 5px;
+        background-color: #6a67ce;
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        color: rgba(255, 255, 255, 1.0);
+        cursor: pointer;
+    }
+
+    #startbutton {
+        display: block;
+        position: absolute;
+        top: 400px;
+        margin-left: 670px;
+        margin-right: auto;
+        height: 50px;
+        width: 150px;
+        font-size: 20px;
+        font-weight: bold;
+        color: white;
+        background: #c784ee;
+        border: 1px solid white;
+        outline: none;
+        cursor: pointer;
+        border-radius: 25px;
+        bottom: 36px;
+        padding: 5px;
+        background-color: #6a67ce;
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        color: rgba(255, 255, 255, 1.0);
+        cursor: pointer;
+    }
+
+    #nextbutton{
+        display: block;
+        position: absolute;
+        top: 400px;
+        margin-left: 900px;
+        margin-right: auto;
+        height: 50px;
+        width: 150px;
+        font-size: 20px;
+        font-weight: bold;
+        color: white;
+        background: #c784ee;
+        border: 1px solid white;
+        outline: none;
+        cursor: pointer;
+        border-radius: 25px;
+        bottom: 36px;
+        padding: 5px;
+        background-color: #6a67ce;
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        color: rgba(255, 255, 255, 1.0);
+        cursor: pointer;
+    }
+    
+
+
+    .contentarea {
+        font-size: 16px;
+        color: white;
+        font-family: Arial;
+        text-align: center;
+    }
+    </style>
+    <title>Capture Your Face</title>
+</head>
+
+<body>
+    <div class="wrapper">
+    <div class="contentarea">
+        <h1>
+            Let's see that face!
+        </h1>
+        <div class="camera">
+            <video id="video">Video stream not available.</video>
+        </div>
+        <button id="backbutton"><a href="Try on.html" style="text-decoration: none; color: white;">Back</a></button>
+        <button id="startbutton"><a href="#" style="text-decoration: none; color: white;">Take Photo</a></button>
+        <button id="nextbutton"><a href="Cart.html" style="text-decoration: none; color: white;">Next</a></button>
+        <canvas id="canvas"></canvas>
+        <div class="output">
+            <img id="photo" alt="The screen capture will appear in this box.">
+        </div>
+    </div>
+
+    <script>
+    /* JS comes here */
+    (function() {
+
+        var width = 320; // We will scale the photo width to this
+        var height = 0; // This will be computed based on the input stream
+
+        var streaming = false;
+
+        var video = null;
+        var canvas = null;
+        var photo = null;
+        var startbutton = null;
+
+        function startup() {
+            video = document.getElementById('video');
+            canvas = document.getElementById('canvas');
+            photo = document.getElementById('photo');
+            startbutton = document.getElementById('startbutton');
+
+            navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: false
+                })
+                .then(function(stream) {
+                    video.srcObject = stream;
+                    video.play();
+                })
+                .catch(function(err) {
+                    console.log("An error occurred: " + err);
+                });
+
+            video.addEventListener('canplay', function(ev) {
+                if (!streaming) {
+                    height = video.videoHeight / (video.videoWidth / width);
+
+                    if (isNaN(height)) {
+                        height = width / (4 / 3);
+                    }
+
+                    video.setAttribute('width', width);
+                    video.setAttribute('height', height);
+                    canvas.setAttribute('width', width);
+                    canvas.setAttribute('height', height);
+                    streaming = true;
+                }
+            }, false);
+
+            startbutton.addEventListener('click', function(ev) {
+                takepicture();
+                ev.preventDefault();
+            }, false);
+
+            clearphoto();
+        }
+
+
+        function clearphoto() {
+            var context = canvas.getContext('2d');
+            context.fillStyle = "#AAA";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            var data = canvas.toDataURL('image/png');
+            photo.setAttribute('src', data);
+        }
+
+        function takepicture() {
+            var context = canvas.getContext('2d');
+            if (width && height) {
+                canvas.width = width;
+                canvas.height = height;
+                context.drawImage(video, 0, 0, width, height);
+
+                var data = canvas.toDataURL('image/png');
+                photo.setAttribute('src', data);
+            } else {
+                clearphoto();
+            }
+        }
+
+        window.addEventListener('load', startup, false);
+    })();
+    </script>
+</body>
+</html>
